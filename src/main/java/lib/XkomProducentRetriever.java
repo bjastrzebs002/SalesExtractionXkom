@@ -14,7 +14,6 @@ public class XkomProducentRetriever {
     public XkomProducentRetriever(String code,
                                   String name){
         producentProductsLink = String.format(producentProductsLink, code, name);
-        System.out.println(producentProductsLink);
     }
 
     public void allPagesChecker(){
@@ -49,4 +48,6 @@ public class XkomProducentRetriever {
         aHrefs.addAll(pageHrefs);
 
     }
+
+    public ArrayList<String> getLinks(){ return aHrefs; }
 }

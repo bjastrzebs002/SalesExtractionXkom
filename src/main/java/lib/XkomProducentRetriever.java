@@ -1,5 +1,7 @@
 package lib;
 
+import Bigquery.BQHandler;
+import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -8,12 +10,14 @@ import org.jsoup.select.Elements;
 import java.util.ArrayList;
 
 public class XkomProducentRetriever {
+    final static Logger logger = Logger.getLogger(XkomProducentRetriever.class);
     String producentProductsLink = "https://www.x-kom.pl/szukaj?sort_by=accuracy_desc&f[manufacturers][%s]=1&q=%s";
     ArrayList<String> aHrefs = new ArrayList<>();
-
+    String producent;
     public XkomProducentRetriever(String code,
                                   String name){
         producentProductsLink = String.format(producentProductsLink, code, name);
+        producent = name;
     }
 
     public void allPagesChecker(){
@@ -26,6 +30,7 @@ public class XkomProducentRetriever {
             }
             page += 1;
         }
+        logger.info("All pages done for producent: " + producent);
     }
 
     private void fillAllHrefs(int pageNumber) throws Exception {

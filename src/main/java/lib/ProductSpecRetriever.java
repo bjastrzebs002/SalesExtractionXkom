@@ -1,5 +1,7 @@
 package lib;
 
+import Bigquery.BQHandler;
+import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -11,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Properties;
 
 public class ProductSpecRetriever {
+    final static Logger logger = Logger.getLogger(ProductSpecRetriever.class);
     String productLink;
     Document doc;
     Properties prop;

@@ -1,7 +1,7 @@
 package Bigquery;
 
-import com.google.api.client.util.DateTime;
 import com.google.cloud.bigquery.*;
+import org.apache.log4j.Logger;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 public class BQHandler {
+    final static Logger logger = Logger.getLogger(BQHandler.class);
     BigQuery bigquery;
     String propFile = "config.properties";
     Properties prop;
@@ -41,11 +42,13 @@ public class BQHandler {
         Job queryJob = bigquery.create(JobInfo.newBuilder(queryConfig).setJobId(jobId).build());
         queryJob = queryJob.waitFor();
         if (queryJob == null) {
-            throw new RuntimeException("Job no longer exists");
+            logger.error("Job no longer exists");
+            throw new RuntimeException();
         } else if (queryJob.getStatus().getError() != null) {
-            throw new RuntimeException(queryJob.getStatus().getError().toString());
+            logger.error("Errors during getting values from BigQuery: " + queryJob.getStatus().getError().toString());
+            throw new RuntimeException();
         }
-
+        logger.info("Correctly got table results from BigQuery");
         return queryJob.getQueryResults();
     }
 
@@ -58,7 +61,7 @@ public class BQHandler {
         for (FieldValueList row : result.iterateAll()){
             brands.put(row.get("code").getStringValue(), row.get("brand").getStringValue());
         }
-
+        logger.info("Correctly got brands codes");
         return brands;
     }
 
@@ -71,7 +74,7 @@ public class BQHandler {
         for (FieldValueList row : result.iterateAll()){
             brands.add(row.get("b_dist").getStringValue());
         }
-
+        logger.info("Correctly got all brands from database");
         return brands;
     }
 
@@ -84,7 +87,7 @@ public class BQHandler {
         for (FieldValueList row : result.iterateAll()){
             products.put(row.get("productId").getNumericValue().intValue(), row.get("productName").getStringValue());
         }
-
+        logger.info("Correctly got products by brand");
         return products;
     }
 
@@ -100,6 +103,7 @@ public class BQHandler {
             products.put(rowDate, (float) row.get("price").getDoubleValue());
         }
 
+        logger.info("Correctly got history of product's prices");
         return products;
     }
 
@@ -113,7 +117,7 @@ public class BQHandler {
         for (FieldValueList row : result.iterateAll()){
             products.add(row.get("productId").getNumericValue().intValue());
         }
-
+        logger.info("Correctly got all products");
         return products;
     }
 
@@ -136,7 +140,7 @@ public class BQHandler {
                                     // You can also supply optional unique row keys to support de-duplication scenarios.
                                     .build());
             if (responseProducts.hasErrors()) {
-                System.out.println("Couldn't insert product.");
+                logger.warn("Couldn't insert product.");
             }
 
             Map<String, Object> rowContentPrices = new HashMap<>();
@@ -151,7 +155,7 @@ public class BQHandler {
                                     // You can also supply optional unique row keys to support de-duplication scenarios.
                                     .build());
             if (responsePrices.hasErrors()) {
-                System.out.println("Couldn't insert product's price and date.");
+                logger.warn("Couldn't insert product's price and date.");
             }
         }
 

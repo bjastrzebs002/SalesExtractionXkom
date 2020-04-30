@@ -3,12 +3,14 @@ package lib;
 import Bigquery.BQHandler;
 import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.BigQueryOptions;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
 public class ProductsLoader {
+    final static Logger logger = Logger.getLogger(ProductsLoader.class);
     Map<String, String> brands;
     BQHandler bq;
     public ProductsLoader() throws IOException, InterruptedException {
@@ -23,7 +25,7 @@ public class ProductsLoader {
                     entry.getKey(),
                     entry.getValue());
             retriever.allPagesChecker();
-            System.out.println("ALL pages done");
+
             ArrayList<String> hrefs = retriever.getLinks();
             ArrayList<ArrayList<String>> allSpecs = new ArrayList<>();
             ProductSpecRetriever prodSpec;
@@ -32,15 +34,17 @@ public class ProductsLoader {
                 try{
                     prodSpec = new ProductSpecRetriever(href);
                 } catch (Exception e){
-                    System.out.println("Couldn't get json: " + e);
+                    logger.warn("Couldnt get json, error: " + e);
                     continue;
                 }
 
                 allSpecs.add(prodSpec.getProductSpecification());
             }
-            System.out.println("Got all specs");
+            logger.info("Got all specifications from products' pages for " + entry.getValue());
+
             bq.updateProducts(allSpecs);
-            System.out.println("Updated all products and prices");
+
+            logger.info("Updated all products and prices for " + entry.getValue());
         }
     }
 }

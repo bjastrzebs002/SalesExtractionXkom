@@ -125,23 +125,23 @@ public class BQHandler {
         ArrayList<Integer> actualProducts = getAllProducts();
         for(ArrayList<String> row : products){
             int id = Integer.parseInt(row.get(0));
-            if(actualProducts.contains(id)){
-                continue;
+            if(!actualProducts.contains(id)){
+                Map<String, Object> rowContent = new HashMap<>();
+                rowContent.put("productId", id);
+                rowContent.put("productName", row.get(1));
+                rowContent.put("productBrand", row.get(2));
+                InsertAllResponse responseProducts =
+                        bigquery.insertAll(
+                                InsertAllRequest.newBuilder(tableIdProducts)
+                                        .addRow(rowContent)
+                                        // More rows can be added in the same RPC by invoking .addRow() on the builder.
+                                        // You can also supply optional unique row keys to support de-duplication scenarios.
+                                        .build());
+                if (responseProducts.hasErrors()) {
+                    logger.warn("Couldn't insert product.");
+                }
             }
-            Map<String, Object> rowContent = new HashMap<>();
-            rowContent.put("productId", id);
-            rowContent.put("productName", row.get(1));
-            rowContent.put("productBrand", row.get(2));
-            InsertAllResponse responseProducts =
-                    bigquery.insertAll(
-                            InsertAllRequest.newBuilder(tableIdProducts)
-                                    .addRow(rowContent)
-                                    // More rows can be added in the same RPC by invoking .addRow() on the builder.
-                                    // You can also supply optional unique row keys to support de-duplication scenarios.
-                                    .build());
-            if (responseProducts.hasErrors()) {
-                logger.warn("Couldn't insert product.");
-            }
+
 
             Map<String, Object> rowContentPrices = new HashMap<>();
             rowContentPrices.put("productId", id);

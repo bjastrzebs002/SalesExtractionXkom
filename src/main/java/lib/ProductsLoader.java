@@ -30,7 +30,6 @@ public class ProductsLoader {
             ArrayList<ArrayList<String>> allSpecs = new ArrayList<>();
             ProductSpecRetriever prodSpec;
             for(String href : hrefs){
-
                 try{
                     prodSpec = new ProductSpecRetriever(href);
                 } catch (Exception e){
